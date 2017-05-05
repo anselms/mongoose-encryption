@@ -1,5 +1,5 @@
 {
-  "name": "mongoose-encryption",
+  "name": "mongoose-encryption-perdoc",
   "description": "Simple encryption and authentication plugin for Mongoose",
   "version": "1.5.0",
   "author": {
@@ -19,12 +19,12 @@
   "main": "./index.js",
   "repository": {
     "type": "git",
-    "url": "git://github.com/joegoldbeck/mongoose-encryption.git"
+    "url": "git://github.com/anselms/mongoose-encryption-perdoc.git"
   },
   "bugs": {
-    "url": "https://github.com/joegoldbeck/mongoose-encryption/issues"
+    "url": "https://github.com/anselms/mongoose-encryption-perdoc/issues"
   },
-  "homepage": "https://github.com/joegoldbeck/mongoose-encryption",
+  "homepage": "https://github.com/anselms/mongoose-encryption-perdoc",
   "license": "MIT",
   "dependencies": {
     "async": "0.9.0",
