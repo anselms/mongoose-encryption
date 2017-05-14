@@ -40,7 +40,7 @@ beforeEach(() => {
     blz: 21812712,
     name: "Konto"
   };
-//  await mockgoose.helper.reset();
+  //  await mockgoose.helper.reset();
 });
 
 /* Helper functions*/
@@ -113,12 +113,12 @@ test("create two docs, different keys", async done => {
   done();
 });
 
-test.skip("not providing keys", async done => {
-    // using async in here will only work from jest v20 on .https://github.com/facebook/jest/issues/1377
+test("not providing keys", async done => {
+  // using async in here will only work from jest v20 on .https://github.com/facebook/jest/issues/1377
   try {
     expect(await Account.create(testAccount)).toThrow();
   } catch (err) {
-  };
+  }
 
   try {
     expect(
@@ -127,7 +127,26 @@ test.skip("not providing keys", async done => {
       })
     ).toThrow();
   } catch (err) {
-  };
+  }
+
+  done();
+});
+
+test("providing wrong key on read", async done => {
+  // using async in here will only work from jest v20 on .https://github.com/facebook/jest/issues/1377
+
+  testAccount.keyEncrypt = crypto.randomBytes(32).toString("base64");
+  await Account.create(testAccount);
+
+  try {
+    expect(
+      await Account.findOne({
+        userID: testAccount.userID,
+        keyEncrypt: crypto.randomBytes(32).toString("base64")
+      })
+    ).toThrow();
+  } catch (err) {
+  }
 
   done();
 });
