@@ -76,6 +76,36 @@ test("create document, find it.", async done => {
   done();
 });
 
+test.skip("create array of docs", async done => {
+  // This test fails if getKeyForQueryResponse deletes the key from keyStore. 
+  // It's probably due to the asyncronous nature of the save calls created by .create
+  // One way out would be to identify the key not only by userId, but also by e.g. a hash of the doc to save
+  // 
+  try {
+    let compareKeys = Object.keys(testAccount);
+    testAccount.keyEncrypt = crypto.randomBytes(32).toString("base64");
+
+    let res = await Account.create([testAccount, testAccount]);
+
+    let query = Account.find({
+      userId: testAccount.userId,
+      keyEncrypt: testAccount.keyEncrypt
+    });
+
+    res = await query;
+    expect(res.constructor).toBe(Array);
+    res.map(function(obj) {
+      expect(filterObject(obj, compareKeys)).toEqual(
+        filterObject(testAccount, compareKeys)
+      );
+    });
+  } catch (err) {
+    console.log("Error " + err);
+    expect(true).toBe(false);
+  }
+  done();
+});
+
 test("create two docs, different keys, read them.", async done => {
   try {
     let compareKeys = Object.keys(testAccount);
