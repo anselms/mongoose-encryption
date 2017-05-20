@@ -10,7 +10,7 @@ mongoose.set("debug", true);
 
 var AccountSchema = new Schema(
   {
-    userID: {
+    userId: {
       type: Schema.Types.ObjectId,
       index: true,
       unique: false,
@@ -36,8 +36,8 @@ var AccountSchema = new Schema(
 
 
 AccountSchema.plugin(encrypt, {
-  excludeFromEncryption: ["userID", "bankID", "status"],
-  idForKey : "userID"
+  excludeFromEncryption: ["userId", "bankID", "status"],
+  idForKey : "userId"
 //  encryptedFields : ['blz']
 });
 

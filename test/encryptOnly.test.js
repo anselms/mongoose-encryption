@@ -22,8 +22,8 @@ beforeAll(async () => {
     mongoose.disconnect();
     await mockgoose.prepareStorage();
     await mongoose.connect(config.db);
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = process.env.JEST_TIMEOUT ||
-      jasmine.DEFAULT_TIMEOUT_INTERVAL;
+    jasmine.DEFAULT_TIMEOUT_INTERVAL =
+      process.env.JEST_TIMEOUT || jasmine.DEFAULT_TIMEOUT_INTERVAL;
   } catch (err) {
     console.error("Error in beforeAll: " + err);
   }
@@ -35,7 +35,7 @@ afterAll(() => {
 
 beforeEach(() => {
   testAccount = {
-    userID: mongoose.Types.ObjectId(),
+    userId: mongoose.Types.ObjectId(),
     bankID: mongoose.Types.ObjectId(),
     blz: 21812712,
     name: "Konto"
@@ -53,7 +53,7 @@ filterObject = (obj, keysSelect) => {
   return newObj;
 };
 
-test("create document", async done => {
+test("create document, find it.", async done => {
   try {
     let compareKeys = Object.keys(testAccount);
     testAccount.keyEncrypt = crypto.randomBytes(32).toString("base64");
@@ -61,7 +61,7 @@ test("create document", async done => {
     let res = await Account.create(testAccount);
 
     let query = Account.findOne({
-      userID: testAccount.userID,
+      userId: testAccount.userId,
       keyEncrypt: testAccount.keyEncrypt
     });
 
@@ -76,7 +76,7 @@ test("create document", async done => {
   done();
 });
 
-test("create two docs, different keys", async done => {
+test("create two docs, different keys, read them.", async done => {
   try {
     let compareKeys = Object.keys(testAccount);
 
@@ -85,13 +85,13 @@ test("create two docs, different keys", async done => {
 
     testAccount1.keyEncrypt = crypto.randomBytes(32).toString("base64");
     testAccount2.keyEncrypt = crypto.randomBytes(32).toString("base64");
-    testAccount2.userID = mongoose.Types.ObjectId();
+    testAccount2.userId = mongoose.Types.ObjectId();
 
     await Account.create(testAccount1);
     await Account.create(testAccount2);
 
     let res1 = await Account.findOne({
-      userID: testAccount1.userID,
+      userId: testAccount1.userId,
       keyEncrypt: testAccount1.keyEncrypt
     });
     expect(filterObject(res1, compareKeys)).toEqual(
@@ -99,7 +99,7 @@ test("create two docs, different keys", async done => {
     );
 
     let res2 = await Account.findOne({
-      userID: testAccount2.userID,
+      userId: testAccount2.userId,
       keyEncrypt: testAccount2.keyEncrypt
     });
 
@@ -113,40 +113,55 @@ test("create two docs, different keys", async done => {
   done();
 });
 
-test("not providing keys", async done => {
-  // using async in here will only work from jest v20 on .https://github.com/facebook/jest/issues/1377
+test.skip("not providing keys", async done => {
   try {
-    expect(await Account.create(testAccount)).toThrow();
-  } catch (err) {
-  }
+    // using async in here will only work from jest v20 on .https://github.com/facebook/jest/issues/1377
+    let wasError = false;
+    try {
+      await Account.create(testAccount);
+    } catch (err) {
+      wasError = true;
+    }
+    expect(wasError).toBeTruthy();
 
-  try {
-    expect(
+    wasError = false;
+    try {
       await Account.findOne({
-        userID: testAccount.userID
-      })
-    ).toThrow();
+        userId: testAccount.userId
+      });
+    } catch (err) {
+      wasError = true;
+    }
+    expect(wasError).toBeTruthy();
   } catch (err) {
+    console.log("Error " + err);
+    expect(true).toBe(false);
   }
 
   done();
 });
 
 test("providing wrong key on read", async done => {
-  // using async in here will only work from jest v20 on .https://github.com/facebook/jest/issues/1377
-
-  testAccount.keyEncrypt = crypto.randomBytes(32).toString("base64");
-  await Account.create(testAccount);
-
   try {
-    expect(
-      await Account.findOne({
-        userID: testAccount.userID,
-        keyEncrypt: crypto.randomBytes(32).toString("base64")
-      })
-    ).toThrow();
-  } catch (err) {
-  }
+    // using async in here will only work from jest v20 on .https://github.com/facebook/jest/issues/1377
 
+    testAccount.keyEncrypt = crypto.randomBytes(32).toString("base64");
+    await Account.create(testAccount);
+
+    let wasError = false;
+    try {
+      await Account.findOne({
+        userId: testAccount.userId,
+        keyEncrypt: crypto.randomBytes(32).toString("base64")
+      });
+    } catch (err) {
+      console.log(err);
+      wasError = true;
+    }
+    expect(wasError).toBeTruthy();
+  } catch (err) {
+    console.log("Error " + err);
+    expect(true).toBe(false);
+  }
   done();
 });
