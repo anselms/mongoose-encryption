@@ -4,7 +4,6 @@ var mongoose = require("mongoose");
 var Mockgoose = require("mockgoose").Mockgoose;
 var mockgoose = new Mockgoose(mongoose);
 var crypto = require("crypto");
-mongoose.set("debug", true);
 
 var config = {
   db: process.env.MONGODB_URI || "mongodb://localhost/tpfdb"
@@ -76,11 +75,34 @@ test("create document, find it.", async done => {
   done();
 });
 
+test("create document, find it using $eq.", async done => {
+  try {
+    let compareKeys = Object.keys(testAccount);
+    testAccount.keyEncrypt = crypto.randomBytes(32).toString("base64");
+
+    let res = await Account.create(testAccount);
+
+    let query = Account.findOne({
+      userId: { $eq: testAccount.userId },
+      keyEncrypt: { $eq: testAccount.keyEncrypt }
+    });
+
+    res = await query;
+    expect(filterObject(res, compareKeys)).toEqual(
+      filterObject(testAccount, compareKeys)
+    );
+  } catch (err) {
+    console.log("Error " + err);
+    expect(true).toBe(false);
+  }
+  done();
+});
+
 test.skip("create array of docs", async done => {
-  // This test fails if getKeyForQueryResponse deletes the key from keyStore. 
+  // This test fails if getKeyForQueryResponse deletes the key from keyStore.
   // It's probably due to the asyncronous nature of the save calls created by .create
   // One way out would be to identify the key not only by userId, but also by e.g. a hash of the doc to save
-  // 
+  //
   try {
     let compareKeys = Object.keys(testAccount);
     testAccount.keyEncrypt = crypto.randomBytes(32).toString("base64");
